@@ -29,6 +29,14 @@ def main() -> None:
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
         f.write(line)
+    # Post-write read-back gate: the bytes on disk must be exactly the
+    # line, within the 1-240 character gate.
+    with open(OUTPUT_PATH, "r", encoding="utf-8", newline="") as f:
+        written = f.read()
+    if written != line:
+        raise SystemExit("read-back mismatch: entry.txt does not equal the expected line")
+    if not 1 <= len(written) <= MAX_CHARS:
+        raise SystemExit("read-back failed: line must be 1 to 240 characters")
 
 
 if __name__ == "__main__":
